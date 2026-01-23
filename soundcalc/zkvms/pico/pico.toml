@@ -41,6 +41,18 @@ air_max_degree = 3
 # These numbers are from a common CPU chunk.
 # Other Pico chunks may have different trace widths and polynomial counts.
 num_columns = 1278
+#   1 num_constraints: 1393
+#   1 num_constraints: 1592
+#   2 num_constraints: 1834
+#   4 num_constraints: 1864
+#  20 num_constraints: 1866
+#   1 num_constraints: 1900
+#   1 num_constraints: 1906
+#  18 num_constraints: 1997
+#   1 num_constraints: 2044
+#   1 num_constraints: 2106
+#   1 num_constraints: 5074
+num_constraints = 5074
 batch_size = 1435
 # Pico chips only use the local row and the next row in any constraint.
 opening_points = 2
@@ -61,6 +73,7 @@ trace_length = 1048576 # 1 << 20 is the maximal allowed convert trace length (ba
 # INFO soundness_stats: chunk 21 | num_pre_cols=153 num_main_cols=267 num_perm_cols=47 num_columns=467 num_quotient_polys=18 num_polys=485 AIR_max_degree_upper_bound=3
 air_max_degree = 3
 num_columns = 467
+num_constraints = 392
 batch_size = 485
 # Pico chips only use the local row and the next row in any constraint.
 opening_points = 2
@@ -81,6 +94,7 @@ trace_length = 262144 # 1 << 18 is the longest combine trace
 # INFO soundness_stats: chunk 4  | num_pre_cols=153 num_main_cols=267 num_perm_cols=47 num_columns=467 num_quotient_polys=18 num_polys=485 AIR_max_degree_upper_bound=3
 air_max_degree = 3
 num_columns = 467
+num_constraints = 392
 batch_size = 485
 # Pico chips only use the local row and the next row in any constraint.
 opening_points = 2
@@ -101,6 +115,7 @@ trace_length = 131072 # 1 << 17 is the compress size
 # INFO soundness_stats: chunk 0  | num_pre_cols=153 num_main_cols=267 num_perm_cols=47 num_columns=467 num_quotient_polys=18 num_polys=485 AIR_max_degree_upper_bound=3
 air_max_degree = 3
 num_columns = 467
+num_constraints = 392
 batch_size = 485
 # Pico chips only use the local row and the next row in any constraint.
 opening_points = 2
@@ -121,6 +136,7 @@ trace_length = 32768 # 1 << 15 is the embed size
 # INFO soundness_stats: chunk 0  | num_pre_cols=153 num_main_cols=267 num_perm_cols=47 num_columns=467 num_quotient_polys=18 num_polys=485 AIR_max_degree_upper_bound=3
 air_max_degree = 3
 num_columns = 467
+num_constraints = 392
 batch_size = 485
 # Pico chips only use the local row and the next row in any constraint.
 opening_points = 2
