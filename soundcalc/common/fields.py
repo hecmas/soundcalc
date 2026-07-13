@@ -108,6 +108,14 @@ KOALABEAR_4 = FieldParams(
     two_adicity=KOALABEAR_TWO_ADICITY,
 )
 
+KOALABEAR_5 = FieldParams(
+    name="KoalaBear⁵",
+    p=KOALABEAR_P,
+    field_extension_degree=5,
+    F=_F(KOALABEAR_P, 5),
+    two_adicity=KOALABEAR_TWO_ADICITY,
+)
+
 M31_4 = FieldParams(
     name="M31⁴",
     p=M31_P,
@@ -139,6 +147,7 @@ FIELD_MAP = {
     "BabyBear^4": BABYBEAR_4,
     "BabyBear^5": BABYBEAR_5,
     "KoalaBear^4": KOALABEAR_4,
+    "KoalaBear^5": KOALABEAR_5,
     "M31^4": M31_4,
     "M31^6": M31_6,
     "BN254": BN254_1,

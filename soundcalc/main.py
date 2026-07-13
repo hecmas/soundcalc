@@ -6,7 +6,20 @@ Loads zkVMs and produces soundness reports
 
 from __future__ import annotations
 
-from soundcalc.zkvms import risc0, miden, zisk, dummy_whir, pico, openvm, openvm2, airbender, sp1, venus, zkdtvm
+from soundcalc.zkvms import (
+    risc0,
+    miden,
+    zisk,
+    dummy_whir,
+    pico,
+    openvm,
+    openvm2,
+    airbender,
+    sp1,
+    venus,
+    zkdtvm,
+    zkdtvm_v080,
+)
 from soundcalc import report_cli, report_md
 
 # All zkVM loaders
@@ -22,6 +35,7 @@ _LOADERS = [
     ("SP1", sp1.load),
     ("Venus", venus.load),
     ("zkDTVM", zkdtvm.load),
+    ("zkDTVM v0.8.0", zkdtvm_v080.load),
 ]
 
 

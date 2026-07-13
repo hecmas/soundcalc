@@ -7,6 +7,13 @@ import toml
 from soundcalc.circuits.circuit import Circuit
 from soundcalc.circuits.deep_ali import DeepAliCircuit, DeepAliConfig
 from soundcalc.circuits.jagged import JaggedCircuit, JaggedCircuitConfig
+from soundcalc.circuits.swirl import (
+    SWIRLCircuit,
+    SWIRLCircuitConfig,
+    SWIRLLogUpSecurityParameters,
+    SWIRLSystemParams,
+)
+from soundcalc.circuits.swirl.calculator import SWIRLWhirConfig, SWIRLWhirRoundConfig
 from soundcalc.common.fields import FieldParams, parse_field
 from soundcalc.lookups.logup import LogUp, LogUpConfig, LogUpType
 from soundcalc.pcs.fri import FRI, FRIConfig
@@ -40,10 +47,17 @@ class zkVM:
     A class modeling a zkVM, which contains one or more circuits.
     """
 
-    def __init__(self, name: str, circuits: list[Circuit], version: str | None = None):
+    def __init__(
+        self,
+        name: str,
+        circuits: list[Circuit],
+        version: str | None = None,
+        protocol_family: str | None = None,
+    ):
         self._name = name
         self._circuits = circuits
         self.version = version
+        self.protocol_family = protocol_family
 
     def get_name(self) -> str:
         """Returns the name of the zkVM."""
@@ -69,8 +83,196 @@ class zkVM:
             return cls._load_whir_from_toml(config)
         elif protocol_family == "JAGGED":
             return cls._load_jagged_from_toml(config)
+        elif protocol_family == "MIXED":
+            return cls._load_mixed_from_toml(config)
         else:
             raise ValueError(f"Unknown protocol_family: {protocol_family}")
+
+    @staticmethod
+    def _hash_size_bits(config: dict, section: dict) -> int:
+        return section.get("hash_size_bits", config["zkevm"]["hash_size_bits"])
+
+    @staticmethod
+    def _field(config: dict, section: dict) -> FieldParams:
+        return parse_field(section.get("field", config["zkevm"]["field"]))
+
+    @classmethod
+    def _build_fri_circuit_from_section(cls, config: dict, section: dict) -> DeepAliCircuit:
+        field = cls._field(config, section)
+        pcs = FRI(FRIConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            rho=section["rho"],
+            gap_to_radius=section.get("gap_to_radius"),
+            trace_length=section["trace_length"],
+            field=field,
+            batch_size=section["batch_size"],
+            power_batching=section["power_batching"],
+            multilinear_batching=section.get("multilinear_batching", False),
+            num_queries=section["num_queries"],
+            FRI_folding_factors=section.get("fri_folding_factors"),
+            FRI_early_stop_degree=section.get("fri_early_stop_degree"),
+            grinding_query_phase=section.get("grinding_query_phase", 0),
+            grinding_commit_phase=section.get("grinding_commit_phase", 0),
+            grinding_batching_phase=section.get("grinding_batching_phase", 0),
+        ))
+        lookups = _parse_lookups_from_toml(section, field)
+        return DeepAliCircuit(DeepAliConfig(
+            name=section["name"],
+            pcs=pcs,
+            field=field,
+            gap_to_radius=section.get("gap_to_radius"),
+            num_constraints=section["num_constraints"],
+            AIR_max_degree=section["air_max_degree"],
+            max_combo=section["opening_points"],
+            lookups=lookups if lookups else None,
+            grinding_deep=section.get("grinding_deep", 0),
+            explicit_regime=section.get("explicit_regime"),
+        ))
+
+    @classmethod
+    def _build_whir_circuit_from_section(cls, config: dict, section: dict) -> DeepAliCircuit:
+        field = cls._field(config, section)
+        pcs = WHIR(WHIRConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            log_inv_rate=section["log_inv_rate"],
+            num_iterations=section["num_iterations"],
+            folding_factors=section["folding_factors"],
+            field=field,
+            log_degree=section["log_degree"],
+            batch_size=section["batch_size"],
+            power_batching=section["power_batching"],
+            grinding_batching_phase=section["grinding_batching_phase"],
+            constraint_degree=section["constraint_degree"],
+            grinding_bits_folding=section["grinding_bits_folding"],
+            num_queries=section["num_queries"],
+            grinding_bits_queries=section["grinding_bits_queries"],
+            num_ood_samples=section["num_ood_samples"],
+            grinding_bits_ood=section["grinding_bits_ood"],
+        ))
+        lookups = _parse_lookups_from_toml(section, field)
+        return DeepAliCircuit(DeepAliConfig(
+            name=section["name"],
+            pcs=pcs,
+            field=field,
+            gap_to_radius=section.get("gap_to_radius"),
+            num_constraints=section["num_constraints"],
+            AIR_max_degree=section["air_max_degree"],
+            max_combo=section["opening_points"],
+            lookups=lookups if lookups else None,
+            explicit_regime=section.get("explicit_regime"),
+        ))
+
+    @classmethod
+    def _build_jagged_circuit_from_section(cls, config: dict, section: dict) -> JaggedCircuit:
+        field = cls._field(config, section)
+        # Jagged currently only supports the unique-decoding regime.
+        explicit_regime = section.get("explicit_regime")
+        if explicit_regime is not None and explicit_regime != "unique":
+            raise ValueError(
+                f"Jagged only supports explicit_regime=\"unique\", got {explicit_regime!r}"
+            )
+        dense_pcs = FRI(FRIConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            rho=section["rho"],
+            gap_to_radius=section.get("gap_to_radius"),
+            trace_length=section["dense_length"],
+            field=field,
+            batch_size=section["dense_batch"],
+            power_batching=section["power_batching"],
+            multilinear_batching=section.get("multilinear_batching", False),
+            num_queries=section["num_queries"],
+            FRI_folding_factors=section.get("fri_folding_factors"),
+            FRI_early_stop_degree=section.get("fri_early_stop_degree"),
+            grinding_batching_phase=section.get("grinding_batching_phase", 0),
+            grinding_query_phase=section.get("grinding_query_phase", 0),
+        ))
+        lookups = _parse_lookups_from_toml(section, field)
+        return JaggedCircuit(JaggedCircuitConfig(
+            name=section["name"],
+            dense_pcs=dense_pcs,
+            field=field,
+            trace_length=section["trace_length"],
+            trace_width=section["trace_columns"],
+            num_constraints=section["num_constraints"],
+            AIR_max_degree=section["air_max_degree"],
+            lookups=lookups if lookups else None,
+        ))
+
+    @classmethod
+    def _build_swirl_circuit_from_section(cls, config: dict, section: dict) -> SWIRLCircuit:
+        field = cls._field(config, section)
+        whir = WHIR(WHIRConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            log_inv_rate=section["log_inv_rate"],
+            num_iterations=section["num_iterations"],
+            folding_factors=section["folding_factors"],
+            field=field,
+            log_degree=section["log_degree"],
+            batch_size=section["batch_size"],
+            power_batching=section["power_batching"],
+            grinding_batching_phase=section["grinding_batching_phase"],
+            constraint_degree=section["constraint_degree"],
+            grinding_bits_folding=section["grinding_bits_folding"],
+            num_queries=section["num_queries"],
+            grinding_bits_queries=section["grinding_bits_queries"],
+            num_ood_samples=section["num_ood_samples"],
+            grinding_bits_ood=section["grinding_bits_ood"],
+        ))
+        rounds = [SWIRLWhirRoundConfig(num_queries=q) for q in section["num_queries"]]
+        params = SWIRLSystemParams(
+            l_skip=section["l_skip"],
+            n_stack=section["n_stack"],
+            w_stack=section.get("w_stack", 1),
+            log_blowup=section["log_inv_rate"],
+            whir=SWIRLWhirConfig(
+                k=section.get("swirl_whir_k", 4),
+                rounds=rounds,
+                mu_pow_bits=section.get(
+                    "swirl_mu_pow_bits",
+                    section.get("grinding_batching_phase", 0),
+                ),
+                query_phase_pow_bits=section.get(
+                    "swirl_query_phase_pow_bits",
+                    section["grinding_bits_queries"][0],
+                ),
+                folding_pow_bits=section.get(
+                    "swirl_folding_pow_bits",
+                    section["grinding_bits_folding"][0][0],
+                ),
+                explicit_regime=section["explicit_regime"],
+                explicit_m=section.get("explicit_m"),
+            ),
+            logup=SWIRLLogUpSecurityParameters(
+                max_interaction_count=section["max_interaction_count"],
+                log_max_message_length=section["log_max_message_length"],
+                pow_bits=section.get("grinding_bits_lookup", 0),
+            ),
+            max_constraint_degree=section["air_max_degree"],
+        )
+        return SWIRLCircuit(SWIRLCircuitConfig(
+            name=section["name"],
+            pcs=whir,
+            field=field,
+            params=params,
+            max_num_constraints_per_air=section["max_constraints_per_air"],
+            num_airs=section["num_airs"],
+            max_log_trace_height=section["max_log_trace_height"],
+            num_trace_columns=section["trace_columns"],
+            max_interactions_per_air=section["max_interactions_per_air"],
+        ))
+
+    @classmethod
+    def _build_circuit_from_section(cls, config: dict, section: dict) -> Circuit:
+        protocol_family = section.get("protocol_family", config["zkevm"]["protocol_family"])
+        if protocol_family == "FRI_STARK":
+            return cls._build_fri_circuit_from_section(config, section)
+        if protocol_family == "WHIR":
+            return cls._build_whir_circuit_from_section(config, section)
+        if protocol_family == "JAGGED":
+            return cls._build_jagged_circuit_from_section(config, section)
+        if protocol_family == "SWIRL":
+            return cls._build_swirl_circuit_from_section(config, section)
+        raise ValueError(f"Unknown circuit protocol_family: {protocol_family}")
 
     @classmethod
     def _load_fri_from_toml(cls, config: dict) -> "zkVM":
@@ -203,3 +405,16 @@ class zkVM:
 
         return cls(config["zkevm"]["name"], circuits=circuits,
                    version=config["zkevm"].get("version"))
+
+    @classmethod
+    def _load_mixed_from_toml(cls, config: dict) -> "zkVM":
+        """
+        Load a VM whose circuits may use different proof-system families.
+        """
+        circuits = [
+            cls._build_circuit_from_section(config, section)
+            for section in config.get("circuits", [])
+        ]
+        return cls(config["zkevm"]["name"], circuits=circuits,
+                   version=config["zkevm"].get("version"),
+                   protocol_family=config["zkevm"]["protocol_family"])

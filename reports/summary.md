@@ -16,6 +16,7 @@ How to read this report:
 | [Venus](venus.md) | 0.1.6 | **128** bits (JBR) | 269 KiB | 313 KiB | DEEP-ALI + FRI | Goldilocks³ | 44 |
 | [ZisK](zisk.md) | 0.16.1 | **128** bits (JBR) | 269 KiB | 313 KiB | DEEP-ALI + FRI | Goldilocks³ | 44 |
 | [zkDTVM](zkdtvm.md) | 0.1.0 | **100** bits (UDR) | 703 KiB | 1206 KiB | Jagged + FRI | KoalaBear⁴ | 2 |
+| [zkDTVM-v0.8.0](zkdtvm-v0.8.0.md) | 0.8.0 | **128** bits (mixed) | TODO | TODO | Mixed(Jagged + FRI, SWIRL + WHIR) | KoalaBear⁵ | 4 |
 
 ## Notes
 
