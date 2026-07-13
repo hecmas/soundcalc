@@ -128,4 +128,3 @@ How to read this report:
 | regime | total | OOD(i=1) | OOD(i=2) | Shift(i=1) | Shift(i=2) | constraint_batching | fin | fold(i=0,s=1) | fold(i=0,s=2) | fold(i=0,s=3) | fold(i=0,s=4) | fold(i=1,s=1) | fold(i=1,s=2) | fold(i=1,s=3) | fold(i=1,s=4) | fold(i=2,s=1) | fold(i=2,s=2) | fold(i=2,s=3) | fold(i=2,s=4) | gkr_batching | gkr_sumcheck | logup | stacked_reduction | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | JBR | 132 | 132 | 133 | 149 | 140 | 150.6 | 141 | 141 | 142 | 143 | 144 | 138 | 139 | 140 | 141 | 134 | 135 | 136 | 137 | 154.9 | 153.4 | 135 | 148.9 | 150.3 |
-
