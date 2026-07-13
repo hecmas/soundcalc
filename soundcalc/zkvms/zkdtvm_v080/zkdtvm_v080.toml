@@ -10,7 +10,7 @@
 # Target: 128-bit round-by-round soundness over KoalaBear^5.
 
 [zkevm]
-name = "zkDTVM-v0.8.0"
+name = "zkDTVM"
 protocol_family = "MIXED"
 field = "KoalaBear^5"
 version = "0.8.0"

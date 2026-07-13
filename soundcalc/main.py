@@ -17,7 +17,6 @@ from soundcalc.zkvms import (
     airbender,
     sp1,
     venus,
-    zkdtvm,
     zkdtvm_v080,
 )
 from soundcalc import report_cli, report_md
@@ -34,8 +33,7 @@ _LOADERS = [
     ("Airbender", airbender.load),
     ("SP1", sp1.load),
     ("Venus", venus.load),
-    ("zkDTVM", zkdtvm.load),
-    ("zkDTVM v0.8.0", zkdtvm_v080.load),
+    ("zkDTVM", zkdtvm_v080.load),
 ]
 
 
