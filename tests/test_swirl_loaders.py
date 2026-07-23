@@ -1,0 +1,155 @@
+"""The bespoke OpenVM2 SWIRL loader was replaced by the generic
+zkVM.load_from_toml path. This test keeps the original OpenVM2 loader as a
+reference implementation and checks that the two loaders build identical
+zkVMs from openvm2.toml.
+"""
+
+from pathlib import Path
+
+import toml
+
+from soundcalc.common.fields import parse_field
+from soundcalc.circuits.swirl import (
+    SWIRLCircuit,
+    SWIRLCircuitConfig,
+    SWIRLLogUpSecurityParameters,
+    build_swirl_system_params,
+)
+from soundcalc.pcs.whir import WHIR, WHIRConfig
+from soundcalc.zkvms import openvm2
+from soundcalc.zkvms.zkvm import zkVM
+
+OPENVM2_TOML = Path(openvm2.__file__).parent / "openvm2.toml"
+
+
+def _load_reference() -> zkVM:
+    """The original bespoke OpenVM2 loader, kept verbatim (only the toml path
+    is shared with the test)."""
+    with open(OPENVM2_TOML, "r") as f:
+        config = toml.load(f)
+
+    field = parse_field(config["zkevm"]["field"])
+    hash_size_bits = config["zkevm"]["hash_size_bits"]
+    swirl_config = config["swirl"]
+
+    circuits = []
+    for section in config.get("circuits", []):
+        explicit_regime = section["explicit_regime"]
+        explicit_m = section.get("explicit_m") if explicit_regime == "list" else None
+        logup = SWIRLLogUpSecurityParameters(
+            max_interaction_count=swirl_config["logup_max_interaction_count"],
+            log_max_message_length=swirl_config["logup_log_max_message_length"],
+            pow_bits=section.get("logup_pow_bits", swirl_config["logup_pow_bits"]),
+        )
+
+        params = build_swirl_system_params(
+            l_skip=section["l_skip"],
+            n_stack=section["n_stack"],
+            w_stack=section["w_stack"],
+            log_blowup=section["log_blowup"],
+            folding_pow_bits=section["whir_folding_pow_bits"],
+            mu_pow_bits=section["whir_mu_pow_bits"],
+            explicit_regime=explicit_regime,
+            explicit_m=explicit_m,
+            num_queries=section["whir_num_queries"],
+            logup=logup,
+            max_constraint_degree=section["constraint_degree"],
+        )
+        whir = WHIR(WHIRConfig(
+            hash_size_bits=hash_size_bits,
+            log_inv_rate=params.log_blowup,
+            num_iterations=len(params.whir.rounds),
+            folding_factors=[params.whir.k] * len(params.whir.rounds),
+            field=field,
+            log_degree=params.log_stacked_height(),
+            batch_size=params.w_stack,
+            power_batching=True,
+            grinding_batching_phase=params.whir.mu_pow_bits,
+            constraint_degree=section["constraint_degree"],
+            grinding_bits_folding=[
+                [params.whir.folding_pow_bits] * params.whir.k
+                for _ in params.whir.rounds
+            ],
+            num_queries=[round_config.num_queries for round_config in params.whir.rounds],
+            grinding_bits_queries=[params.whir.query_phase_pow_bits] * len(params.whir.rounds),
+            num_ood_samples=[1] * max(len(params.whir.rounds) - 1, 0),
+            grinding_bits_ood=[0] * max(len(params.whir.rounds) - 1, 0),
+        ))
+        circuits.append(SWIRLCircuit(SWIRLCircuitConfig(
+            name=section["name"],
+            pcs=whir,
+            field=field,
+            params=params,
+            max_num_constraints_per_air=section["max_constraints_per_air"],
+            num_airs=section["num_airs"],
+            max_log_trace_height=section["max_log_trace_height"],
+            num_trace_columns=section["num_trace_columns"],
+            max_interactions_per_air=section["max_interactions_per_air"],
+            soundness_max_num_constraints_per_air=section.get(
+                "soundness_max_constraints_per_air",
+                section["max_constraints_per_air"],
+            ),
+            soundness_num_airs=section.get("soundness_num_airs", section["num_airs"]),
+            soundness_max_log_trace_height=section.get(
+                "soundness_max_log_trace_height",
+                section["max_log_trace_height"],
+            ),
+            soundness_num_trace_columns=section.get(
+                "soundness_num_trace_columns",
+                section["num_trace_columns"],
+            ),
+            soundness_max_interactions_per_air=section.get(
+                "soundness_max_interactions_per_air",
+                section["max_interactions_per_air"],
+            ),
+            proof_size_num_airs=section.get(
+                "proof_size_num_airs",
+                section.get("soundness_num_airs", section["num_airs"]),
+            ),
+            proof_size_max_log_trace_height=section.get(
+                "proof_size_max_log_trace_height",
+                section.get(
+                    "soundness_max_log_trace_height",
+                    section["max_log_trace_height"],
+                ),
+            ),
+            proof_size_num_trace_columns=section.get(
+                "proof_size_num_trace_columns",
+                section.get("soundness_num_trace_columns", section["num_trace_columns"]),
+            ),
+            proof_size_max_interactions_per_air=section.get(
+                "proof_size_max_interactions_per_air",
+                section.get(
+                    "soundness_max_interactions_per_air",
+                    section["max_interactions_per_air"],
+                ),
+            ),
+            proof_size_num_public_values=section.get("proof_size_num_public_values", 0),
+        )))
+
+    return zkVM(config["zkevm"]["name"], circuits=circuits, version=config["zkevm"].get("version"))
+
+
+def test_generic_swirl_loader_matches_reference_loader():
+    reference = _load_reference()
+    unified = zkVM.load_from_toml(OPENVM2_TOML)
+
+    assert unified.get_name() == reference.get_name()
+    assert unified.version == reference.version
+    assert reference.get_circuits()
+    assert len(unified.get_circuits()) == len(reference.get_circuits())
+
+    for ref_circuit, gen_circuit in zip(reference.get_circuits(), unified.get_circuits()):
+        ref_state = dict(vars(ref_circuit))
+        gen_state = dict(vars(gen_circuit))
+        ref_pcs = ref_state.pop("pcs")
+        gen_pcs = gen_state.pop("pcs")
+
+        assert gen_state == ref_state
+        assert vars(gen_pcs) == vars(ref_pcs)
+        assert gen_circuit.get_security_levels() == ref_circuit.get_security_levels()
+        assert gen_circuit.get_proof_size_bits() == ref_circuit.get_proof_size_bits()
+        assert (
+            gen_circuit.get_proof_size_breakdown_bits()
+            == ref_circuit.get_proof_size_breakdown_bits()
+        )
