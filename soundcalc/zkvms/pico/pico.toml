@@ -28,11 +28,11 @@
 
 [zkevm]
 name = "Pico"
-protocol_family = "FRI_STARK"
 field = "KoalaBear^4"
 hash_size_bits = 248  # 31 x 8
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "riscv"
 # blowup_factor = 2
 rho = 0.5
@@ -120,6 +120,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "convert"
 # blowup_factor = 2
 rho = 0.5
@@ -150,6 +151,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "combine"
 # blowup_factor = 2
 rho = 0.5
@@ -180,6 +182,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "compress"
 # blowup_factor = 16
 rho = 0.0625
@@ -210,6 +213,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "embed"
 # blowup_factor = 16
 rho = 0.0625

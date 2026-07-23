@@ -10,7 +10,7 @@ How to read this report:
 |------|---------|----------|---------------------|-----------------------|--------------|-------|----------|
 | [Airbender](airbender.md) | — | **67** bits (JBR) | 1836 KiB | 1951 KiB | DEEP-ALI + FRI | M31⁴ | 1 |
 | [OpenVM](openvm.md) | 1.5.0 | **100** bits (UDR) | 7687 KiB | 8231 KiB | DEEP-ALI + FRI | BabyBear⁴ | 3 |
-| [OpenVM2](openvm2.md) | 2.0.0-beta | **100** bits (UDR) | TODO | TODO | SWIRL + WHIR | BabyBear⁴ | 4 |
+| [OpenVM2](openvm2.md) | 2.0.0-beta | **100** bits (mixed) | TODO | TODO | SWIRL + WHIR | BabyBear⁴ | 4 |
 | [Pico](pico.md) | — | **53** bits (JBR) | 232 KiB | 281 KiB | DEEP-ALI + FRI | KoalaBear⁴ | 5 |
 | [SP1](sp1.md) | 6.1.0 | **100** bits (UDR) | 529 KiB | 887 KiB | Jagged + FRI | KoalaBear⁴ | 3 |
 | [Venus](venus.md) | 0.1.6 | **128** bits (JBR) | 269 KiB | 313 KiB | DEEP-ALI + FRI | Goldilocks³ | 44 |

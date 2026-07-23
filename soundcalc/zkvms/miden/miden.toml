@@ -9,11 +9,11 @@
 
 [zkevm]
 name = "Miden"
-protocol_family = "FRI_STARK"
 field = "Goldilocks^2"
 hash_size_bits = 256  # TODO: check if that is actually true
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "main"
 # blowup_factor = 8 => rho = 1/8
 rho = 0.125

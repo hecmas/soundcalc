@@ -3,12 +3,12 @@
 
 [zkevm]
 name = "DummyWHIR"
-protocol_family = "WHIR"
 field = "Goldilocks^3"
 hash_size_bits = 256
 
 
 [[circuits]]
+protocol_family = "WHIR"
 name = "riscv"
 log_inv_rate = 4
 num_iterations = 5
@@ -65,6 +65,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "WHIR"
 name = "convert"
 log_inv_rate = 4
 num_iterations = 5
@@ -94,6 +95,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "WHIR"
 name = "combine"
 log_inv_rate = 4
 num_iterations = 4
@@ -122,6 +124,7 @@ num_lookups_M = 1
 grinding_bits_lookup = 0
 
 [[circuits]]
+protocol_family = "WHIR"
 name = "embed"
 log_inv_rate = 4
 num_iterations = 3

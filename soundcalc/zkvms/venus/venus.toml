@@ -5,6 +5,7 @@
 # Cross-validated against ZisK upstream — identical soundness parameters.
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma"
 group = "basic"
 trace_length = 2097152
@@ -97,6 +98,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaMemCpy"
 group = "basic"
 trace_length = 2097152
@@ -180,6 +182,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaInputCpy"
 group = "basic"
 trace_length = 2097152
@@ -263,6 +266,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma64Aligned"
 group = "basic"
 trace_length = 2097152
@@ -346,6 +350,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma64AlignedInputCpy"
 group = "basic"
 trace_length = 2097152
@@ -429,6 +434,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma64AlignedMemSet"
 group = "basic"
 trace_length = 2097152
@@ -494,6 +500,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma64AlignedMem"
 group = "basic"
 trace_length = 2097152
@@ -559,6 +566,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Dma64AlignedMemCpy"
 group = "basic"
 trace_length = 2097152
@@ -624,6 +632,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaUnaligned"
 group = "basic"
 trace_length = 2097152
@@ -698,6 +707,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaPrePost"
 group = "basic"
 trace_length = 2097152
@@ -763,6 +773,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaPrePostMemCpy"
 group = "basic"
 trace_length = 2097152
@@ -819,6 +830,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaPrePostInputCpy"
 group = "basic"
 trace_length = 2097152
@@ -875,6 +887,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Main"
 group = "basic"
 trace_length = 4194304
@@ -949,6 +962,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Rom"
 group = "basic"
 trace_length = 4194304
@@ -978,6 +992,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Mem"
 group = "basic"
 trace_length = 4194304
@@ -1043,6 +1058,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "RomData"
 group = "basic"
 trace_length = 2097152
@@ -1090,6 +1106,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "InputData"
 group = "basic"
 trace_length = 2097152
@@ -1146,6 +1163,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "MemAlign"
 group = "basic"
 trace_length = 2097152
@@ -1193,6 +1211,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "MemAlignByte"
 group = "basic"
 trace_length = 4194304
@@ -1258,6 +1277,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "MemAlignReadByte"
 group = "basic"
 trace_length = 4194304
@@ -1314,6 +1334,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "MemAlignWriteByte"
 group = "basic"
 trace_length = 4194304
@@ -1379,6 +1400,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Arith"
 group = "basic"
 trace_length = 2097152
@@ -1426,6 +1448,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Binary"
 group = "basic"
 trace_length = 4194304
@@ -1473,6 +1496,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "BinaryAdd"
 group = "basic"
 trace_length = 4194304
@@ -1520,6 +1544,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "BinaryExtension"
 group = "basic"
 trace_length = 4194304
@@ -1576,6 +1601,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Add256"
 group = "basic"
 trace_length = 1048576
@@ -1623,6 +1649,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "ArithEq"
 group = "basic"
 trace_length = 1048576
@@ -1697,6 +1724,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "ArithEq384"
 group = "basic"
 trace_length = 1048576
@@ -1771,6 +1799,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Keccakf"
 group = "basic"
 trace_length = 131072
@@ -1818,6 +1847,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Sha256f"
 group = "basic"
 trace_length = 262144
@@ -1865,6 +1895,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Poseidon2"
 group = "basic"
 trace_length = 131072
@@ -1903,6 +1934,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Blake2br"
 group = "basic"
 trace_length = 262144
@@ -1959,6 +1991,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "SpecifiedRanges"
 group = "helper"
 trace_length = 1048576
@@ -2033,6 +2066,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "VirtualTable0"
 group = "helper"
 trace_length = 2097152
@@ -2107,6 +2141,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "VirtualTable1"
 group = "helper"
 trace_length = 2097152
@@ -2136,6 +2171,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "DmaPrePost-compressor"
 group = "compression"
 trace_length = 262144
@@ -2165,6 +2201,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "ArithEq-compressor"
 group = "compression"
 trace_length = 262144
@@ -2194,6 +2231,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "ArithEq384-compressor"
 group = "compression"
 trace_length = 262144
@@ -2223,6 +2261,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Keccakf-compressor"
 group = "compression"
 trace_length = 1048576
@@ -2252,6 +2291,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Sha256f-compressor"
 group = "compression"
 trace_length = 524288
@@ -2281,6 +2321,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Blake2br-compressor"
 group = "compression"
 trace_length = 262144
@@ -2310,6 +2351,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Recursive2"
 group = "aggregation"
 trace_length = 131072
@@ -2339,6 +2381,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Final"
 group = "final"
 trace_length = 65536
@@ -2368,6 +2411,7 @@ grinding_bits_lookup = 0
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "Final_Compressed"
 group = "final_compressed"
 trace_length = 32768
@@ -2398,7 +2442,6 @@ grinding_bits_lookup = 0
 
 [zkevm]
 name = "Venus"
-protocol_family = "FRI_STARK"
 version = "0.1.6"
 field = "Goldilocks^3"
 hash_size_bits = 256

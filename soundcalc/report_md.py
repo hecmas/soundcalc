@@ -39,10 +39,7 @@ class zkVMSummary:
     final_expected_proof_size_kib: int | None
 
 
-def _compute_overview_stats(
-    circuits: list[Circuit],
-    mixed_regimes: bool = False,
-) -> dict[str, Any]:
+def _compute_overview_stats(circuits: list[Circuit]) -> dict[str, Any]:
     """
     Compute overview statistics for a list of circuits.
 
@@ -62,10 +59,7 @@ def _compute_overview_stats(
     else:
         final_proof_size_kib = final_circuit.get_proof_size_bits() // KIB
 
-    security = _best_security_across_circuits(
-        circuits,
-        mixed_regimes=mixed_regimes,
-    )
+    security = _best_security_across_circuits(circuits)
     offending_circuit = security["circuit"]
 
     return {
@@ -89,11 +83,15 @@ def _format_security_value(value: Any) -> str:
     return str(value)
 
 
-def _best_security_across_circuits(
-    circuits: list[Circuit],
-    mixed_regimes: bool = False,
-) -> dict[str, Any]:
-    """Compute VM security while preserving legacy aggregation by default."""
+def _best_security_across_circuits(circuits: list[Circuit]) -> dict[str, Any]:
+    """
+    Find the regime with the highest minimum security across circuits,
+    together with the weakest circuit in that regime.
+
+    Only regimes reported by every circuit are compared; if there is no such
+    regime, each circuit is credited with its own best regime, the weakest
+    circuit wins, and the result is labeled "mixed".
+    """
     regime_totals_by_circuit: list[tuple[Circuit, dict[str, int]]] = []
     for circuit in circuits:
         totals = {
@@ -106,67 +104,41 @@ def _best_security_across_circuits(
     if not regime_totals_by_circuit:
         return {"security_bits": 0, "regime": "N/A", "circuit": None}
 
-    if not mixed_regimes:
-        regime_mins: dict[str, tuple[int, Circuit]] = {}
-        for circuit, totals in regime_totals_by_circuit:
-            for regime_name, total_bits in totals.items():
-                if regime_name not in regime_mins or total_bits < regime_mins[regime_name][0]:
-                    regime_mins[regime_name] = (total_bits, circuit)
-
-        best_regime = None
-        best_min_bits = -1
-        offending_circuit = None
-        for regime_name, (min_bits, circuit) in regime_mins.items():
-            if min_bits > best_min_bits:
-                best_min_bits = min_bits
-                best_regime = regime_name
-                offending_circuit = circuit
-
-        return {
-            "security_bits": best_min_bits,
-            "regime": best_regime,
-            "circuit": offending_circuit,
-        }
-
     common_regimes = set(regime_totals_by_circuit[0][1])
     for _, totals in regime_totals_by_circuit[1:]:
         common_regimes &= set(totals)
 
-    if common_regimes:
-        best_regime = None
-        best_min_bits = -1
-        offending_circuit = None
-        for regime_name in sorted(common_regimes):
-            circuit, min_bits = min(
-                (
-                    (circuit, totals[regime_name])
-                    for circuit, totals in regime_totals_by_circuit
-                ),
-                key=lambda item: item[1],
-            )
-            if min_bits > best_min_bits:
-                best_min_bits = min_bits
-                best_regime = regime_name
-                offending_circuit = circuit
-        return {
-            "security_bits": best_min_bits,
-            "regime": best_regime,
-            "circuit": offending_circuit,
-        }
+    if not common_regimes:
+        circuit, min_bits = min(
+            (
+                (circuit, max(totals.values()))
+                for circuit, totals in regime_totals_by_circuit
+                if totals
+            ),
+            key=lambda item: item[1],
+        )
+        return {"security_bits": min_bits, "regime": "mixed", "circuit": circuit}
 
-    circuit, regime_name, min_bits = min(
-        (
-            (circuit, *max(totals.items(), key=lambda item: item[1]))
-            for circuit, totals in regime_totals_by_circuit
-            if totals
-        ),
-        key=lambda item: item[2],
-    )
+    best_regime = None
+    best_min_bits = -1
+    offending_circuit = None
+    for regime_name in sorted(common_regimes):
+        circuit, min_bits = min(
+            (
+                (circuit, totals[regime_name])
+                for circuit, totals in regime_totals_by_circuit
+            ),
+            key=lambda item: item[1],
+        )
+        if min_bits > best_min_bits:
+            best_min_bits = min_bits
+            best_regime = regime_name
+            offending_circuit = circuit
+
     return {
-        "security_bits": min_bits,
-        "regime": "mixed",
-        "circuit": circuit,
-        "circuit_regime": regime_name,
+        "security_bits": best_min_bits,
+        "regime": best_regime,
+        "circuit": offending_circuit,
     }
 
 
@@ -184,10 +156,6 @@ def _zkvm_proof_system_label(circuits: list[Circuit]) -> str:
     if len(labels) == 1:
         return labels[0]
     return "Mixed(" + ", ".join(labels) + ")"
-
-
-def _uses_mixed_regime_accounting(zkvm: zkVM) -> bool:
-    return getattr(zkvm, "protocol_family", None) == "MIXED"
 
 
 def _collect_zkvm_summary(zkvm: zkVM) -> zkVMSummary:
@@ -213,17 +181,9 @@ def _collect_zkvm_summary(zkvm: zkVM) -> zkVMSummary:
         )
 
     field = _field_label(circuits[0].field)
-    mixed_regimes = _uses_mixed_regime_accounting(zkvm)
-    proof_system = (
-        _zkvm_proof_system_label(circuits)
-        if mixed_regimes
-        else _proof_system_label(circuits[0])
-    )
+    proof_system = _zkvm_proof_system_label(circuits)
 
-    security = _best_security_across_circuits(
-        circuits,
-        mixed_regimes=mixed_regimes,
-    )
+    security = _best_security_across_circuits(circuits)
     best_bits = security["security_bits"]
     best_regime = security["regime"]
 
@@ -367,10 +327,7 @@ def _build_zkvm_report(zkvm: zkVM, multi_circuit: bool = False) -> str:
 
     if multi_circuit and len(circuits) > 1:
         # Multi-circuit mode: add overview and inline all circuits
-        overview = _compute_overview_stats(
-            circuits,
-            mixed_regimes=_uses_mixed_regime_accounting(zkvm),
-        )
+        overview = _compute_overview_stats(circuits)
 
         if overview:
             lines.append("## zkVM Overview")

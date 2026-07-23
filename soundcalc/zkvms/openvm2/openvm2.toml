@@ -1,6 +1,5 @@
 [zkevm]
 name = "OpenVM2"
-protocol_family = "SWIRL"
 version = "2.0.0-beta"
 field = "BabyBear^4"
 hash_size_bits = 256
@@ -11,6 +10,7 @@ logup_log_max_message_length = 7
 logup_pow_bits = 18
 
 [[circuits]]
+protocol_family = "SWIRL"
 name = "app"
 l_skip = 4
 n_stack = 20
@@ -28,6 +28,7 @@ num_trace_columns = 30000
 max_interactions_per_air = 1000
 
 [[circuits]]
+protocol_family = "SWIRL"
 name = "leaf"
 l_skip = 4
 n_stack = 17
@@ -45,6 +46,7 @@ num_trace_columns = 2000
 max_interactions_per_air = 100
 
 [[circuits]]
+protocol_family = "SWIRL"
 name = "internal"
 l_skip = 2
 n_stack = 17
@@ -64,6 +66,7 @@ max_interactions_per_air = 100
 
 # the root aggregation layer is only used for STARK-to-SNARK recursion
 [[circuits]]
+protocol_family = "SWIRL"
 name = "root"
 l_skip = 2
 n_stack = 18

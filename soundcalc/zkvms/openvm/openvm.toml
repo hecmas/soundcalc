@@ -1,6 +1,5 @@
 [zkevm]
 name = "OpenVM"
-protocol_family = "FRI_STARK"
 version = "1.5.0"
 field = "BabyBear^4"
 hash_size_bits = 256
@@ -17,6 +16,7 @@ hash_size_bits = 256
 #
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "app"
 # blowup_factor = 2
 rho = 0.5
@@ -41,6 +41,7 @@ grinding_query_phase = 20
 grinding_deep = 5
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "leaf"
 # blowup_factor = 2
 rho = 0.5
@@ -59,6 +60,7 @@ grinding_query_phase = 20
 grinding_deep = 5
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "internal"
 # blowup_factor = 4
 rho = 0.25

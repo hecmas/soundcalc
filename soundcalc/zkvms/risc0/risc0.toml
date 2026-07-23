@@ -8,11 +8,11 @@
 
 [zkevm]
 name = "RISC0"
-protocol_family = "FRI_STARK"
 field = "BabyBear^4"
 hash_size_bits = 256  # TODO: check if that is actually true
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "main"
 rho = 0.25
 trace_length = 2097152  # 1 << 21

@@ -2,6 +2,9 @@
 
 toml format changes, newest-first.
 
+### 2026-07-23 — Protocol family
+- moved `protocol_family` from the `[zkevm]` section to each `[[circuits]]` section, so a VM can mix proof-system families across circuits
+
 ### 2026-05-02 — WHIR
 - allow custom folding factors in WHIR
 
