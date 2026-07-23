@@ -11,7 +11,7 @@ How to read this report:
 | Metric | Value | Relevant circuit | Notes |
 | --- | --- | --- | --- |
 | Final bits of security | **128 bits** | [core](#core) | Regime: mixed |
-| Final proof size (worst case) | **TODO** | [root_shrink](#root_shrink) | |
+| Final proof size (worst case) | **200 KiB** | [root_shrink](#root_shrink) | |
 
 ## Circuits
 
@@ -122,10 +122,11 @@ How to read this report:
 - Max log trace height: 18
 - Number of trace columns: 326
 - Max interactions per AIR: 100
+- Proof-size public values bound: 0
 
-**Proof Size:** TODO
+**Proof Size:** 200 KiB (expected) / 200 KiB (worst case)
 
-| regime | total | OOD(i=1) | OOD(i=2) | Shift(i=1) | Shift(i=2) | constraint_batching | fin | fold(i=0,s=1) | fold(i=0,s=2) | fold(i=0,s=3) | fold(i=0,s=4) | fold(i=1,s=1) | fold(i=1,s=2) | fold(i=1,s=3) | fold(i=1,s=4) | fold(i=2,s=1) | fold(i=2,s=2) | fold(i=2,s=3) | fold(i=2,s=4) | gkr_batching | gkr_sumcheck | logup | stacked_reduction | zerocheck_sumcheck |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| JBR | 132 | 132 | 133 | 149 | 140 | 150.6 | 141 | 141 | 142 | 143 | 144 | 138 | 139 | 140 | 141 | 134 | 135 | 136 | 137 | 154.9 | 153.4 | 135 | 148.9 | 150.3 |
+| regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| JBR | 128 | 143 | 154 | 153 | 128 | 142 | 132 | 134 | 142 | 132 | 134 | 140 | 140 | 167 | 143 |
 

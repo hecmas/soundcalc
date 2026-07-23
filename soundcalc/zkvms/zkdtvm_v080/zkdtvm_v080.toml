@@ -121,6 +121,11 @@ multilinear_fingerprint = true
 
 
 # ---- Root shrink circuit: SWIRL-style stacked WHIR ----
+[swirl]
+logup_max_interaction_count = 52428800
+logup_log_max_message_length = 6
+logup_pow_bits = 10
+
 [[circuits]]
 name = "root_shrink"
 protocol_family = "SWIRL"
@@ -129,19 +134,11 @@ hash_size_bits = 256   # SHA256 Merkle root for the final PCS layer.
 # WHIR PCS parameters.  The runtime config has stack_log_height=18,
 # log_final_poly_len=6, and num_committed_groups=3, so the active 12 rounds
 # are distributed as [4, 4, 4].
-log_inv_rate = 4
-num_iterations = 3
-folding_factors = [4, 4, 4]
-log_degree = 18
-batch_size = 1
-power_batching = true
-grinding_batching_phase = 20
+log_blowup = 4
+whir_num_queries = [77, 38, 26]
+whir_folding_pow_bits = 20
+whir_mu_pow_bits = 20
 constraint_degree = 3
-num_queries = [77, 38, 26]
-grinding_bits_queries = [20, 20, 20]
-num_ood_samples = [1, 1]
-grinding_bits_ood = [0, 0]
-grinding_bits_folding = [[20, 20, 20, 20], [20, 20, 20, 20], [20, 20, 20, 20]]
 explicit_regime = "list"
 explicit_m = 2
 
@@ -149,17 +146,10 @@ explicit_m = 2
 l_skip = 6
 n_stack = 12
 w_stack = 1
-swirl_whir_k = 4
-swirl_query_phase_pow_bits = 20
-swirl_folding_pow_bits = 20
 
 # Conservative recursion-circuit bounds used by the SWIRL-side soundness terms.
-air_max_degree = 3
 max_constraints_per_air = 204
 num_airs = 50
 max_log_trace_height = 18
-trace_columns = 326
+num_trace_columns = 326
 max_interactions_per_air = 100
-max_interaction_count = 52428800
-log_max_message_length = 6
-grinding_bits_lookup = 10

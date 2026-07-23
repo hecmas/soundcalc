@@ -10,8 +10,8 @@ How to read this report:
 
 | Metric | Value | Relevant circuit | Notes |
 | --- | --- | --- | --- |
-| Final bits of security | **100 bits** | [app](#app) | Regime: UDR |
-| Final proof size | **270 KiB** | [root](#root) | |
+| Final bits of security | **100 bits** | [app](#app) | Regime: mixed |
+| Final proof size (worst case) | **270 KiB** | [root](#root) | |
 
 ## Circuits
 
@@ -53,7 +53,7 @@ How to read this report:
 - Proof-size max interactions per AIR bound: 1000
 - Proof-size public values bound: 20
 
-**Proof Size:** 26175 KiB
+**Proof Size:** 26175 KiB (expected) / 26175 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -91,7 +91,7 @@ How to read this report:
 - Proof-size max interactions per AIR bound: 100
 - Proof-size public values bound: 121
 
-**Proof Size:** 15509 KiB
+**Proof Size:** 15509 KiB (expected) / 15509 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -130,7 +130,7 @@ How to read this report:
 - Proof-size max interactions per AIR bound: 100
 - Proof-size public values bound: 121
 
-**Proof Size:** 2393 KiB
+**Proof Size:** 2393 KiB (expected) / 2393 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -169,7 +169,7 @@ How to read this report:
 - Proof-size max interactions per AIR bound: 100
 - Proof-size public values bound: 121
 
-**Proof Size:** 2393 KiB
+**Proof Size:** 2393 KiB (expected) / 2393 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -199,7 +199,7 @@ How to read this report:
 - Max interactions per AIR: 100
 - Proof-size public values bound: 18
 
-**Proof Size:** 1330 KiB
+**Proof Size:** 1330 KiB (expected) / 1330 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -229,8 +229,9 @@ How to read this report:
 - Max interactions per AIR: 100
 - Proof-size public values bound: 16
 
-**Proof Size:** 270 KiB
+**Proof Size:** 270 KiB (expected) / 270 KiB (worst case)
 
 | regime | total | constraint_batching | gkr_batching | gkr_sumcheck | logup | stacked_reduction | whir | whir_fold_rbr | whir_gamma_batching | whir_mu_batching | whir_ood_rbr | whir_proximity_gaps | whir_query | whir_shift_rbr | whir_sumcheck | zerocheck_sumcheck |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | JBR | 100 | 111 | 123 | 122 | 100 | 109 | 100 | 105 | 112 | 107 | 100 | 105 | 100 | 100 | 136 | 117 |
+

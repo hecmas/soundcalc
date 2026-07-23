@@ -290,11 +290,14 @@ def _whir_proximity_gap_security(
     log_inv_rate: int,
     batch_size: int,
 ) -> SWIRLProximityGapSecurity:
-    assert batch_size > 1, "batch_size must be > 1 for err*"
+    assert batch_size >= 1, "batch_size must be >= 1 for err*"
+    # A batch of size 1 involves no batching challenge, so the err* term
+    # vanishes (log2_err = inf); the list size is unaffected.
+    log2_batch_terms = math.log2(batch_size - 1) if batch_size > 1 else -math.inf
     if explicit_regime == "unique":
         return SWIRLProximityGapSecurity(
             log2_err=challenge_field_bits
-            - math.log2(batch_size - 1)
+            - log2_batch_terms
             - log_degree
             - log_inv_rate,
             log2_list_size=0.0,
@@ -308,7 +311,7 @@ def _whir_proximity_gap_security(
             explicit_m,
         )
         return SWIRLProximityGapSecurity(
-            log2_err=challenge_field_bits - math.log2(batch_size - 1) - log2_a,
+            log2_err=challenge_field_bits - log2_batch_terms - log2_a,
             log2_list_size=log2_list_size,
         )
     raise ValueError(f"Unknown SWIRL explicit_regime: {explicit_regime}")
@@ -383,7 +386,7 @@ def _calculate_whir_soundness(
     min_fold_rbr_bits = math.inf
     min_shift_rbr_bits = math.inf
 
-    assert num_stacked_columns >= 2, "WHIR requires at least 2 stacked columns for mu batching"
+    assert num_stacked_columns >= 1, "WHIR requires at least 1 stacked column"
     mu_security = _whir_proximity_gap_security(
         whir.explicit_regime,
         whir.explicit_m,
@@ -492,6 +495,9 @@ def _calculate_whir_soundness(
         "whir_query": min_query_bits,
         "whir_gamma_batching": min_gamma_batching_bits,
     }
+    # With a single stacked column there is no mu batching round.
+    if not math.isfinite(mu_batching_bits):
+        del levels["whir_mu_batching"]
     if math.isfinite(min_ood_bits):
         levels["whir_ood_rbr"] = min_ood_bits
     return levels

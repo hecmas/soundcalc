@@ -11,9 +11,8 @@ from soundcalc.circuits.swirl import (
     SWIRLCircuit,
     SWIRLCircuitConfig,
     SWIRLLogUpSecurityParameters,
-    SWIRLSystemParams,
+    build_swirl_system_params,
 )
-from soundcalc.circuits.swirl.calculator import SWIRLWhirConfig, SWIRLWhirRoundConfig
 from soundcalc.common.fields import FieldParams, parse_field
 from soundcalc.lookups.logup import LogUp, LogUpConfig, LogUpType
 from soundcalc.pcs.fri import FRI, FRIConfig
@@ -191,54 +190,49 @@ class zkVM:
     @classmethod
     def _build_swirl_circuit_from_section(cls, config: dict, section: dict) -> SWIRLCircuit:
         field = cls._field(config, section)
-        whir = WHIR(WHIRConfig(
-            hash_size_bits=cls._hash_size_bits(config, section),
-            log_inv_rate=section["log_inv_rate"],
-            num_iterations=section["num_iterations"],
-            folding_factors=section["folding_factors"],
-            field=field,
-            log_degree=section["log_degree"],
-            batch_size=section["batch_size"],
-            power_batching=section["power_batching"],
-            grinding_batching_phase=section["grinding_batching_phase"],
-            constraint_degree=section["constraint_degree"],
-            grinding_bits_folding=section["grinding_bits_folding"],
-            num_queries=section["num_queries"],
-            grinding_bits_queries=section["grinding_bits_queries"],
-            num_ood_samples=section["num_ood_samples"],
-            grinding_bits_ood=section["grinding_bits_ood"],
-        ))
-        rounds = [SWIRLWhirRoundConfig(num_queries=q) for q in section["num_queries"]]
-        params = SWIRLSystemParams(
+        swirl_config = config["swirl"]
+
+        explicit_regime = section["explicit_regime"]
+        explicit_m = section.get("explicit_m") if explicit_regime == "list" else None
+        logup = SWIRLLogUpSecurityParameters(
+            max_interaction_count=swirl_config["logup_max_interaction_count"],
+            log_max_message_length=swirl_config["logup_log_max_message_length"],
+            pow_bits=section.get("logup_pow_bits", swirl_config["logup_pow_bits"]),
+        )
+
+        params = build_swirl_system_params(
             l_skip=section["l_skip"],
             n_stack=section["n_stack"],
-            w_stack=section.get("w_stack", 1),
-            log_blowup=section["log_inv_rate"],
-            whir=SWIRLWhirConfig(
-                k=section.get("swirl_whir_k", 4),
-                rounds=rounds,
-                mu_pow_bits=section.get(
-                    "swirl_mu_pow_bits",
-                    section.get("grinding_batching_phase", 0),
-                ),
-                query_phase_pow_bits=section.get(
-                    "swirl_query_phase_pow_bits",
-                    section["grinding_bits_queries"][0],
-                ),
-                folding_pow_bits=section.get(
-                    "swirl_folding_pow_bits",
-                    section["grinding_bits_folding"][0][0],
-                ),
-                explicit_regime=section["explicit_regime"],
-                explicit_m=section.get("explicit_m"),
-            ),
-            logup=SWIRLLogUpSecurityParameters(
-                max_interaction_count=section["max_interaction_count"],
-                log_max_message_length=section["log_max_message_length"],
-                pow_bits=section.get("grinding_bits_lookup", 0),
-            ),
-            max_constraint_degree=section["air_max_degree"],
+            w_stack=section["w_stack"],
+            log_blowup=section["log_blowup"],
+            folding_pow_bits=section["whir_folding_pow_bits"],
+            mu_pow_bits=section["whir_mu_pow_bits"],
+            explicit_regime=explicit_regime,
+            explicit_m=explicit_m,
+            num_queries=section["whir_num_queries"],
+            logup=logup,
+            max_constraint_degree=section["constraint_degree"],
         )
+        whir = WHIR(WHIRConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            log_inv_rate=params.log_blowup,
+            num_iterations=len(params.whir.rounds),
+            folding_factors=[params.whir.k] * len(params.whir.rounds),
+            field=field,
+            log_degree=params.log_stacked_height(),
+            batch_size=params.w_stack,
+            power_batching=True,
+            grinding_batching_phase=params.whir.mu_pow_bits,
+            constraint_degree=section["constraint_degree"],
+            grinding_bits_folding=[
+                [params.whir.folding_pow_bits] * params.whir.k
+                for _ in params.whir.rounds
+            ],
+            num_queries=[round_config.num_queries for round_config in params.whir.rounds],
+            grinding_bits_queries=[params.whir.query_phase_pow_bits] * len(params.whir.rounds),
+            num_ood_samples=[1] * max(len(params.whir.rounds) - 1, 0),
+            grinding_bits_ood=[0] * max(len(params.whir.rounds) - 1, 0),
+        ))
         return SWIRLCircuit(SWIRLCircuitConfig(
             name=section["name"],
             pcs=whir,
@@ -247,8 +241,48 @@ class zkVM:
             max_num_constraints_per_air=section["max_constraints_per_air"],
             num_airs=section["num_airs"],
             max_log_trace_height=section["max_log_trace_height"],
-            num_trace_columns=section["trace_columns"],
+            num_trace_columns=section["num_trace_columns"],
             max_interactions_per_air=section["max_interactions_per_air"],
+            soundness_max_num_constraints_per_air=section.get(
+                "soundness_max_constraints_per_air",
+                section["max_constraints_per_air"],
+            ),
+            soundness_num_airs=section.get("soundness_num_airs", section["num_airs"]),
+            soundness_max_log_trace_height=section.get(
+                "soundness_max_log_trace_height",
+                section["max_log_trace_height"],
+            ),
+            soundness_num_trace_columns=section.get(
+                "soundness_num_trace_columns",
+                section["num_trace_columns"],
+            ),
+            soundness_max_interactions_per_air=section.get(
+                "soundness_max_interactions_per_air",
+                section["max_interactions_per_air"],
+            ),
+            proof_size_num_airs=section.get(
+                "proof_size_num_airs",
+                section.get("soundness_num_airs", section["num_airs"]),
+            ),
+            proof_size_max_log_trace_height=section.get(
+                "proof_size_max_log_trace_height",
+                section.get(
+                    "soundness_max_log_trace_height",
+                    section["max_log_trace_height"],
+                ),
+            ),
+            proof_size_num_trace_columns=section.get(
+                "proof_size_num_trace_columns",
+                section.get("soundness_num_trace_columns", section["num_trace_columns"]),
+            ),
+            proof_size_max_interactions_per_air=section.get(
+                "proof_size_max_interactions_per_air",
+                section.get(
+                    "soundness_max_interactions_per_air",
+                    section["max_interactions_per_air"],
+                ),
+            ),
+            proof_size_num_public_values=section.get("proof_size_num_public_values", 0),
         ))
 
     @classmethod
