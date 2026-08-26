@@ -19,7 +19,7 @@ REPORTS_DIR = "reports"
 SUMMARY_REPORT_NAME = "summary.md"
 
 # zkVMs excluded from the summary overview (test/dummy entries)
-_SUMMARY_EXCLUDE = {"DummyWHIR"}
+_SUMMARY_EXCLUDE = {"DummyWHIR", "DummySTIR"}
 
 
 @dataclass

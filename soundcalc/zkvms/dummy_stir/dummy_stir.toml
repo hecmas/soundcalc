@@ -1,0 +1,28 @@
+# A dummy zkVM for testing STIR. Targets 128-bit security in the Johnson Bound regime.
+# Same field, degree, batch size and initial rate as DummyWHIR's "convert" circuit for comparison.
+
+[zkevm]
+name = "DummySTIR"
+field = "Goldilocks^3"
+hash_size_bits = 256
+
+[[circuits]]
+protocol_family = "STIR"
+name = "main"
+log_inv_rate = 4  # rate 1/16
+num_iterations = 5
+folding_factors = [4, 4, 4, 4, 4]
+log_degree = 20
+batch_size = 200
+power_batching = true
+num_constraints = 500
+air_max_degree = 3
+opening_points = 2
+num_queries = [55, 31, 22, 17, 14]
+num_ood_samples = [1, 1, 1, 1]
+
+# grinding bits
+grinding_batching_phase = 21
+grinding_bits_folding = 16
+grinding_bits_queries = [22, 22, 20, 19, 17]
+grinding_bits_ood = [0, 0, 0, 0]
