@@ -1,0 +1,88 @@
+\newpage
+
+\section{STIR-based VM security level calculation}\label{sec:stir_security_level}
+
+This section describes the computation in \verb|soundcalc/pcs/stir.py|, which follows the round-by-round soundness analysis of STIR \cite{ACFY24} (Theorem 5.3 / Section 5.2). STIR shares its degree-shift and rate schedule with WHIR (\cref{sec:whir_security_level}), but has no sumcheck: each iteration folds by $2^k$ with a single challenge, and the degree correction is done by combining quotients with powers of a challenge.
+
+\subsection{Notation and parameters}\label{sec:stir_notation}
+
+\begin{itemize}
+  \item Number of iterations: \(M = \texttt{num\_iterations}\), iteration index \(i \in \{0,\dots,M-1\}\)
+  \item Extension field size: \(|\mathbb{F}| = \bfield\)
+  \item Log folding factors: \(k_i = \texttt{folding\_factors}[i]\), $i\in\{0,\ldots,M-1\}$; iteration $i$ folds $2^{k_i}$ evaluations at once
+  \item Log-degree in iteration \(i\): \(m_0 = \texttt{log\_degree}\), \(m_{i+1} = m_i-k_i\), for $i\in\{0,\ldots,M-1\}$
+  \item Log-inverted rate in iteration \(i\): \(\mu_0 = \log_2 \frac{1}{\rho}\), \(\mu_{i+1} = \mu_i + k_i - 1\)
+  \item Codes of iteration $i$: $\CC_i = (2^{-\mu_i}, 2^{m_i})$ and the folded code $\CC_i^{\mathrm{fold}} = (2^{-\mu_i}, 2^{m_i-k_i})$ (same rate, since degree and domain both shrink by $2^{k_i}$)
+  \item Number of OOD samples for $f_i$, $i \in \{1,\ldots,M-1\}$: \(s_i = \texttt{num\_ood\_samples}[i-1]\)
+  \item Number of queries into $f_i$: \(t_i = \texttt{num\_queries}[i]\)
+  \item Grinding bits: $g_{\mathrm{batch}}$, $g^{\mathrm{fold}}$, $\{g^{\mathrm{ood}}_i\}$, $\{g^{\mathrm{qry}}_i\}$
+  \item Proximity parameter and list size of iteration $i$ (from the regime, cf. \cref{sec:fri_list_sizes}):
+  $$
+  \delta_i = \min\{\delta(\CC_i), \delta(\CC_i^{\mathrm{fold}})\}, \qquad \ell_i = \ell(\CC_i[\rho]).
+  $$
+  \item $\operatorname{err}^*(\CC, B)$ denotes the regime's proximity-gaps error for combining $B$ functions with powers of a single challenge (\verb|get_error_powers|), i.e.\ $\ebatchpowJ(\CC[\rho],\CC[N],\bfield,B)$ in JBR and $\ebatchpowU$ in UDR.
+\end{itemize}
+
+\subsection{Bits of Security}
+
+Overall security is
+\[
+  \lambda_{\mathrm{total}}
+    = \min\{
+      \lambda_{\mathrm{batch}},
+      \lambda^{\mathrm{fold}}_{0},
+      \{\lambda^{\mathrm{out}}_i\}_{i\in \{1,\ldots,M-1\}},
+      \{\lambda^{\mathrm{shift}}_i\}_{i\in \{1,\ldots,M-1\}},
+      \lambda^{\mathrm{fin}}
+    \},
+  \qquad \lambda(\epsilon) = \lfloor -\log_2 \epsilon \rfloor.
+\]
+
+\subsection{Batching Error}
+\verb|_get_batching_error()|. Identical to WHIR on the code $\CC_0$:
+\[
+  \epsilon_{\mathrm{batch}} = \varepsilon^{\mathrm{base}}_{\mathrm{batch}}(\CC_0) \cdot 2^{-g_{\mathrm{batch}}},
+\]
+with $\varepsilon^{\mathrm{base}}_{\mathrm{batch}}$ as in \cref{sec:batch} (powers or linear batching).
+
+\subsection{Initial Folding Error}
+\verb|_epsilon_fold()|. Folding $f_0$ by $2^{k_0}$ with the powers $1, r, \ldots, r^{2^{k_0}-1}$ of a single challenge:
+\[
+  \epsilon^{\mathrm{fold}}_0 = \operatorname{err}^*(\CC_0^{\mathrm{fold}}, 2^{k_0}) \cdot 2^{-g^{\mathrm{fold}}}.
+\]
+
+\subsection{OOD Error}
+\verb|_epsilon_out()|. For $i \in \{1,\ldots,M-1\}$:
+\[
+  \epsilon^{\mathrm{out}}_i = \frac{\ell_i^2}{2} \left(\frac{2^{m_i}}{\bfield - |L_i|}\right)^{s_i} \cdot 2^{-g^{\mathrm{ood}}_{i-1}},
+  \qquad |L_i| = 2^{m_i + \mu_i}.
+\]
+The OOD point is sampled from $\mathbb{F} \setminus L_i$, hence the denominator. For $s_i = 1$ this is the term of Theorem 5.3; for $s_i > 1$ we follow \texttt{stir-whir-scripts} and raise only the collision probability to the power $s_i$. In UDR, $\ell_i = 1$.
+
+\subsection{Shift Error}
+\verb|_epsilon_shift()|. For $i \in \{1,\ldots,M-1\}$ the shift error has three terms: the $t_{i-1}$ queries into $f_{i-1}$ miss the disagreement, the degree correction (combining the $t_{i-1}+s_{i}$ quotient answers by powers), and the folding of $f_i$:
+\[
+  \epsilon^{\mathrm{shift}}_i
+    = \Big( (1-\delta_{i-1})^{t_{i-1}}
+      + \operatorname{err}^*(\CC_i, t_{i-1} + s_i)
+      + \operatorname{err}^*(\CC_i^{\mathrm{fold}}, 2^{k_i}) \Big) \cdot 2^{-g^{\mathrm{qry}}_{i-1}}.
+\]
+
+\subsection{Final Round Error}
+\verb|_epsilon_final()|:
+\[
+  \epsilon^{\mathrm{fin}} = (1-\delta_{M-1})^{t_{M-1}} \cdot 2^{-g^{\mathrm{qry}}_{M-1}}.
+\]
+
+\section{STIR Proof Size Calculations}
+
+Computed in \verb|get_STIR_proof_size_bits()|. Prover messages are: the Merkle root of $f_0$; for $i \in \{1,\ldots,M-1\}$ the Merkle root of $f_i$ and the $s_i$ OOD answers; the final polynomial of degree $< 2^{m_M}$ in the clear; and for every $f_i$, $i\in\{0,\ldots,M-1\}$, a Merkle multi-proof opening $t_i$ leaves, where a leaf holds a folding block of $2^{k_i}$ elements (times $B$ for the batched $f_0$, which lives over the base field):
+\[
+\boxed{
+S_{\mathrm{total}}
+  = \bhash + \sum_{i=1}^{M-1}\left(\bhash + s_i \bfield\right) + 2^{m_M}\bfield
+  + eMP(2^{m_0+\mu_0-k_0}, t_0, B\cdot 2^{k_0}, \bprime, \bhash)
+  + \sum_{i=1}^{M-1} eMP(2^{m_i+\mu_i-k_i}, t_i, 2^{k_i}, \bfield, \bhash)
+}
+\]
+Compared to WHIR there are no sumcheck polynomials.
