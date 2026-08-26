@@ -16,6 +16,7 @@ from soundcalc.circuits.swirl import (
 from soundcalc.common.fields import FieldParams, parse_field
 from soundcalc.lookups.logup import LogUp, LogUpConfig, LogUpType
 from soundcalc.pcs.fri import FRI, FRIConfig
+from soundcalc.pcs.stir import STIR, STIRConfig
 from soundcalc.pcs.whir import WHIR, WHIRConfig
 
 
@@ -137,6 +138,39 @@ class zkVM:
             grinding_bits_queries=section["grinding_bits_queries"],
             num_ood_samples=section["num_ood_samples"],
             grinding_bits_ood=section["grinding_bits_ood"],
+        ))
+        lookups = _parse_lookups_from_toml(section, field)
+        return DeepAliCircuit(DeepAliConfig(
+            name=section["name"],
+            pcs=pcs,
+            field=field,
+            gap_to_radius=section.get("gap_to_radius"),
+            num_constraints=section["num_constraints"],
+            AIR_max_degree=section["air_max_degree"],
+            max_combo=section["opening_points"],
+            lookups=lookups if lookups else None,
+            explicit_regime=section.get("explicit_regime"),
+        ))
+
+    @classmethod
+    def _build_stir_circuit_from_section(cls, config: dict, section: dict) -> DeepAliCircuit:
+        field = cls._field(config, section)
+        pcs = STIR(STIRConfig(
+            hash_size_bits=cls._hash_size_bits(config, section),
+            log_inv_rate=section["log_inv_rate"],
+            num_iterations=section["num_iterations"],
+            folding_factors=section["folding_factors"],
+            field=field,
+            log_degree=section["log_degree"],
+            batch_size=section["batch_size"],
+            power_batching=section["power_batching"],
+            grinding_batching_phase=section["grinding_batching_phase"],
+            grinding_bits_folding=section["grinding_bits_folding"],
+            num_queries=section["num_queries"],
+            grinding_bits_queries=section["grinding_bits_queries"],
+            num_ood_samples=section["num_ood_samples"],
+            grinding_bits_ood=section["grinding_bits_ood"],
+            gap_to_radius=section.get("gap_to_radius"),
         ))
         lookups = _parse_lookups_from_toml(section, field)
         return DeepAliCircuit(DeepAliConfig(
@@ -292,6 +326,8 @@ class zkVM:
             return cls._build_fri_circuit_from_section(config, section)
         if protocol_family == "WHIR":
             return cls._build_whir_circuit_from_section(config, section)
+        if protocol_family == "STIR":
+            return cls._build_stir_circuit_from_section(config, section)
         if protocol_family == "JAGGED":
             return cls._build_jagged_circuit_from_section(config, section)
         if protocol_family == "SWIRL":
