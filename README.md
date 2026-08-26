@@ -32,8 +32,9 @@ We support proof systems based on:
 - [SWIRL](https://openvm.dev/swirl.pdf)
 
 We support the following polynomial commitment schemes:
-- FRI
-- WHIR
+- [FRI](https://drops.dagstuhl.de/storage/00lipics/lipics-vol107-icalp2018/LIPIcs.ICALP.2018.14/LIPIcs.ICALP.2018.14.pdf)
+- [STIR](https://eprint.iacr.org/2024/390.pdf)
+- [WHIR](https://eprint.iacr.org/2024/1586.pdf)
 
 We support the following security regimes (see below for explanation of regimes):
 - Unique Decoding Regime (UDR)
