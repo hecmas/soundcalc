@@ -222,6 +222,15 @@ class STIR(PCS):
         assert all(g >= 0 for g in self.grinding_bits_queries)
         assert all(g >= 0 for g in self.grinding_bits_ood)
 
+        # Every quotient round i = 1..M-1 divides by |G_i| = t_{i-1} + s_i points, so the scheme
+        # needs |G_i| < d_i: otherwise the quotient has no positive degree bound and the error
+        # terms below are meaningless.
+        for i in range(1, self.num_iterations):
+            n_g = self.num_queries[i - 1] + self.num_ood_samples[i - 1]
+            assert n_g < 2 ** self.log_degrees[i], (
+                f"Invalid STIR schedule: |G_{i}| = {n_g} must be below d_{i} = 2^{self.log_degrees[i]}"
+            )
+
         self.log_grinding_overhead = self._get_log_grinding_overhead()
 
     def get_pcs_security_levels(self, regime: ProximityGapsRegime) -> dict[str, int]:
