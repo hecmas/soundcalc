@@ -2,7 +2,7 @@
 
 \section{STIR-based VM security level calculation}\label{sec:stir_security_level}
 
-This section describes the computation in \verb|soundcalc/pcs/stir.py|, which follows the round-by-round soundness analysis of STIR \cite{ACFY24} (Theorem 5.3 / Section 5.2). STIR shares its degree-shift and rate schedule with WHIR (\cref{sec:whir_security_level}), but has no sumcheck: each iteration folds by $2^k$ with a single challenge, and the degree correction is done by combining quotients with powers of a challenge.
+This section describes the computation in \verb|soundcalc/pcs/stir.py|, which follows the round-by-round soundness analysis of STIR \cite{ACFY24} (Lemma 5.4 / Section 5.2). STIR shares its degree-shift and rate schedule with WHIR (\cref{sec:whir_security_level}), but has no sumcheck: each iteration folds by $2^k$ with a single challenge, and the degree correction is done by combining quotients with powers of a challenge.
 
 \subsection{Notation and parameters}\label{sec:stir_notation}
 
@@ -57,7 +57,7 @@ with $\varepsilon^{\mathrm{base}}_{\mathrm{batch}}$ as in \cref{sec:batch} (powe
   \epsilon^{\mathrm{out}}_i = \frac{\ell_i^2}{2} \left(\frac{2^{m_i}}{\bfield - |L_i|}\right)^{s_i} \cdot 2^{-g^{\mathrm{ood}}_{i-1}},
   \qquad |L_i| = 2^{m_i + \mu_i}.
 \]
-The OOD point is sampled from $\mathbb{F} \setminus L_i$, hence the denominator. For $s_i = 1$ this is the term of Theorem 5.3; for $s_i > 1$ we follow \texttt{stir-whir-scripts} and raise only the collision probability to the power $s_i$. In UDR, $\ell_i = 1$.
+The OOD point is sampled from $\mathbb{F} \setminus L_i$, hence the denominator. For $s_i = 1$ this is the term of Lemma 5.4; for $s_i > 1$ we follow \texttt{stir-whir-scripts} and raise only the collision probability to the power $s_i$. In UDR, $\ell_i = 1$.
 
 \subsection{Shift Error}
 \verb|_epsilon_shift()|. For $i \in \{1,\ldots,M-1\}$ the shift error has three terms: the $t_{i-1}$ queries into $f_{i-1}$ miss the disagreement, the degree correction (combining the $t_{i-1}+s_{i}$ quotient answers by powers), and the folding of $f_i$:
@@ -79,10 +79,11 @@ The OOD point is sampled from $\mathbb{F} \setminus L_i$, hence the denominator.
 Computed in \verb|get_STIR_proof_size_bits()|. Prover messages are: the Merkle root of $f_0$; for $i \in \{1,\ldots,M-1\}$ the Merkle root of $f_i$ and the $s_i$ OOD answers; the final polynomial of degree $< 2^{m_M}$ in the clear; and for every $f_i$, $i\in\{0,\ldots,M-1\}$, a Merkle multi-proof opening $t_i$ leaves, where a leaf holds a folding block of $2^{k_i}$ elements (times $B$ for the batched $f_0$, which lives over the base field):
 \[
 \boxed{
+\begin{align}
 S_{\mathrm{total}}
   = \bhash + \sum_{i=1}^{M-1}\left(\bhash + s_i \bfield\right) + 2^{m_M}\bfield
-  + eMP(2^{m_0+\mu_0-k_0}, t_0, B\cdot 2^{k_0}, \bprime, \bhash)
-  + \sum_{i=1}^{M-1} eMP(2^{m_i+\mu_i-k_i}, t_i, 2^{k_i}, \bfield, \bhash)
+  &+ eMP(2^{m_0+\mu_0-k_0}, t_0, B\cdot 2^{k_0}, \bprime, \bhash) \\
+  &+ \sum_{i=1}^{M-1} eMP(2^{m_i+\mu_i-k_i}, t_i, 2^{k_i}, \bfield, \bhash)
+\end{align}
 }
 \]
-Compared to WHIR there are no sumcheck polynomials.
